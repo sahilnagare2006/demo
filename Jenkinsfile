@@ -1,45 +1,30 @@
 pipeline {
     agent any
 
-    parameters {
-        choice(
-            name: 'ENVIRONMENT',
-            choices: ['staging', 'production'],
-            description: 'Target'
-        )
+    environment {
+        PATH = "/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
     }
 
     stages {
-        stage('Tests') {
-            parallel {
-                stage('Unit') {
-                    steps {
-                        bat 'echo Unit tests'
-                    }
-                }
-
-                stage('Integration') {
-                    steps {
-                        bat 'echo Integration tests'
-                    }
-                }
-            }
-        }
-
-        stage('Package') {
+        stage('Checkout') {
             steps {
-                bat 'package.bat'
+                checkout scm
             }
         }
-    }
-
-    post {
-        success {
-            archiveArtifacts artifacts: 'dist/**'
+        stage('Install') {
+            steps {
+                sh 'npm install'
+            }
         }
-
-        failure {
-            echo 'CI pipeline failed'
+        stage('Build') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'npm test'
+            }
         }
     }
 }
