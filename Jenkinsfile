@@ -1,15 +1,15 @@
 pipeline {
-    agent any {
-        parameters { choice (name : 'ENVIRONMENT',
-                             choices : ['dev', 'staging', 'production']) }
-    stages {
-        stage('Approve') {
-            when { expression { params.ENVIRONMENT == 'production' } }
-            step { input message: 'Deploy to production ? ' }
-        }
-        stage('Deploy') {
-            steps { bat "echo Deploy to ${params.ENVIRONMENT}" }
-        }
+  agent any
+  parameters {
+    choice(name: 'ENVIRONMENT', choices: ['staging', 'production'],
+           description: 'Target')
+  }
+  stages {
+    stage ('Tests') {
+    parallel {
+      stage('Unit')        { steps { bat 'echo Unit tests' } }
+      stage('Integration') { steps { bat 'echo Integration tests' } }
     }
+  }
 }
 }
