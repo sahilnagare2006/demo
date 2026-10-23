@@ -1,15 +1,13 @@
 pipeline {
-  agent any
-  parameters {
-    choice(name: 'ENVIRONMENT', choices: ['staging', 'production'],
-           description: 'Target')
-  }
+  agent any 
+  parameters { choice(name: 'ENVIRONMENT' ,
+                      choices: ['staging', 'production']} }
   stages {
-    stage ('Tests') {
-    parallel {
-      stage('Unit')        { steps { bat 'echo Unit tests' } }
-      stage('Integration') { steps { bat 'echo Integration tests' } }
-    }
+    stage('Checkout') { steps { checkout scm } }
+    stage('Quality') { parallel {
+      stage('Build') { steps { bat 'echo Build ' } }
+      stage('Lint')  { steps { bat 'echo Lint ' } } } }
+    stage('Test')  { steps { bat 'echo Test ' } }
+    stage('Package') { steps { bat 'echo Package' } }
   }
-}
-}
+                      }
